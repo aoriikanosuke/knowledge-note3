@@ -6,6 +6,7 @@ import mustache from 'mustache';
 import html from './templates/sample.html?raw';
 import { login } from './pages/login';
 import { register } from './pages/register';
+// import { article } from './pages/article';
 
 const test = () => document
   .querySelector('#app')
