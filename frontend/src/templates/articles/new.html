@@ -1,6 +1,6 @@
 <form action="" method="post" id="articles-new-form">
   <label>
-    <input type="text" name="title" placeholder="タイトルを入力してください" />
+    <input type="text" name="title" id="title" placeholder="タイトルを入力してください" />
   </label>
   <div id="articles-new-form-editor">
     <div id="editor">
@@ -10,15 +10,11 @@
     <div id="preview">
       <div><b>プレビュー</b></div>
       <div id="preview-area">
-        <!-- プレビュー機能実装 消す範囲ここから -->
-        TODO 左のテキストエリアのMarkdownの入力に応じて右側（ここ）にMarkdownの出力結果を表示する。
-        <br/>
-        実装時はダミーテキストはHTMLから消しておく
-        <!-- プレビュー機能実装 消す範囲ここまで -->
       </div>
     </div>
   </div>
   <div style="text-align: right;">
-    <button type="submit">公開</button>
+    <button type="submit" id="publish-button">公開</button>
   </div>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </form>
