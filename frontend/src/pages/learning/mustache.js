@@ -21,7 +21,12 @@ export const learningMustache = () => {
       first: "Michael",
       last: "Jackson"
     },
-    prefectures: prefectures,
+    prefectures: prefectures.map((row) => {
+      return {
+        label: row.label,
+        value: `${row.value}`.padStart(2,'0')
+      }
+    })
   };
   // dataオブジェクトリテラルを渡しつつ画面に描画
   app.innerHTML = mustache.render(html, data);
@@ -76,3 +81,4 @@ const prefectures = [
   { label: '鹿児島県', value: 46 },
   { label: '沖縄県', value: 47 },
 ];
+

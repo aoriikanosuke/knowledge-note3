@@ -3,9 +3,7 @@ import mustache from 'mustache';
 // この場合、テンプレートのHTMLファイルをそのまま取得したいので"?raw"を末尾に付与している
 // 参照: https://ja.vite.dev/guide/assets.html#importing-asset-as-string
 import html from '../../templates/articles/new.html?raw';
-import * as marked from 'marked';
 // ページ遷移するための関数を呼び出す
-import { navigate } from '../../utils/router';
 
 // 当授業ではCSRF攻撃に対して脆弱なコードとなっていますが、実装が煩雑になるので考慮せずに実装しますが
 // 実際にログインを伴うサイト等でフォーム送信などを行う処理にはCSRF攻撃に対する対策CSRFトークンも含めるなどの対策を実施してください
