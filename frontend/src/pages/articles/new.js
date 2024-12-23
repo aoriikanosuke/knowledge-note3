@@ -11,6 +11,13 @@ import { navigate } from '../../utils/router';
 // 実際にログインを伴うサイト等でフォーム送信などを行う処理にはCSRF攻撃に対する対策CSRFトークンも含めるなどの対策を実施してください
 // 参考: https://developer.mozilla.org/ja/docs/Glossary/CSRF
 
+// HTMLを無害化（サニタイズ）するライブラリをインポート
+import DOMPurify from 'dompurify';
+// Markdown形式の文字列をHTML形式の文字列にするライブラリをインポート
+import { parse } from 'marked';
+// URL遷移するための関数をインポート
+import { navigate } from '../../utils/router';
+
 /**
  * 記事新規作成時の処理の関数
  */
@@ -19,63 +26,60 @@ export const articlesNew = () => {
   // templates/articles/new.html を <div id="content"></div> 要素内に出力する
   app.innerHTML = mustache.render(html, {});
 
-  // TODO: new.htmlにかかれているHTMLに入力の変更があったら画面右側のプレビューの内容を入力した内容に応じたものに変換する
-  // 処理...
-    // テキストエリアとプレビューエリアを取得
-  const textarea = document.getElementById('editor-textarea');
-  const previewArea = document.getElementById('preview-area');
 
-  // テキストエリアの内容をプレビューエリアに表示する関数
-  function updatePreview() {
-    const textContent = textarea.value;  // テキストエリアの内容をプレーンテキストとして表示
-    previewArea.innerHTML =marked.parse(textContent);
-  }
+  /**
+   * 入力した本文のMarkdownを画面右側にプレビューするための処理
+   * @param {Event} event フォームがsubmitされた際の処理
+   */
+  const contnetPreview = (event) => {
+    // textarea の値を取得
+    const value = event.target.value;
+    // textarea の値をまずはHTML形式に変換して、その後にHTMLで有害と思わしき処理をトルツメする
+    const previewHTML = DOMPurify.sanitize(parse(value));
+    // 動作確認
+    console.debug(previewHTML);
+    // プレビューエリアに反映する
+    document.querySelector('#preview-area').innerHTML = previewHTML;
+  };
 
-  // テキストエリアの内容が変更されたときにプレビューを更新
-  textarea.addEventListener('input', updatePreview);
-  
-  // "公開" ボタンを押下された際にPOSTメソッドで /api/v1/articles に対してAPI通信を fetch で送信する
-  // "公開"ボタンを取得
-  const publishButton = document.getElementById('publish-button');
+  // id属性が"editor-textarea"な要素が画面に出力されてから実行する必要があるので
+  // app.innerHTMLの下に実装する必要がある。
+  document.querySelector('#editor-textarea').addEventListener('input', contnetPreview);
 
-  // "公開"ボタンがクリックされたときの処理
-  publishButton.addEventListener('click', async (e) => {
-    e.preventDefault();
-    const articleContent = textarea.value; // テキストエリアの内容（Markdown）
-    const title = document.getElementById('title').value; // 記事のタイトルを取得（例）
 
-    // 送信するデータ
-    const data = {
-      title: title,
-      body: articleContent
-    };
+  /**
+   * コンテンツ保存時の処理
+   * @param {Event} event 
+   */
+  const formSubmit = (event) => {
+    // ブラウザ上でページ遷移するのを防ぐ、代わりに後続のJS処理でform送信処理を行う
+    event.preventDefault();
 
-    try {
-      const response = await fetch('/api/v1/articles', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json', // JSON形式で送信
-        },
-        body: JSON.stringify(data) // データをJSON文字列に変換
+    // form 要素内にある name 属性が title と body なフォーム要素を取得する
+    const { title, body } = event.target;
+    fetch('/api/v1/articles', {
+      headers: { 'content-type': 'application/json' },
+      method: 'POST',
+      body: JSON.stringify({ title: title.value, body: body.value }),
+    })
+      .then(res => res.json())
+      .then(json => {
+        if (json.isSuccess) {
+          navigate('/');
+        } else {
+          console.error(json);
+        }
       });
+  };
 
-      // レスポンスの処理
-      if (response.ok) {
-        const responseData = await response.json();
-        // 成功時の処理（例: 記事作成成功メッセージの表示）
-        alert('記事が公開されました!');
-      } else {
-        // エラーハンドリング
-        const errorData = await response.json();
-        alert(`エラーが発生しました: ${errorData.message}`);
-      }
-    } catch (error) {
-      // ネットワークエラー等のエラーハンドリング
-      console.error('API通信に失敗しました:', error);
-      alert('通信エラーが発生しました。再度お試しください。');
-    }
-    // 呼び出した関数を実行する。引数は遷移したいパスをスラッシュから入力
-    navigate('/mypage');
-  });
-  
+
+  // id属性が"articles-new-form"な要素が画面に出力されてから実行する必要があるので
+  // app.innerHTMLの下に実装する必要がある。
+  document.querySelector('#articles-new-form').addEventListener('submit', formSubmit);
+
+  // このページ /articles/new から遷移する際に実行する処理
+  return () => {
+    document.querySelector('#editor-textarea').removeEventListener('input', contnetPreview);
+    document.querySelector('#articles-new-form').removeEventListener('submit', formSubmit);
+  };
 };
