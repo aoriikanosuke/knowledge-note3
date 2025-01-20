@@ -10,32 +10,50 @@ import { parse } from 'marked';
 /**
  * 記事新規作成時の処理の関数
  */
+
 export const articlesId = ({ id }) => {
     const app = document.querySelector('#app');
-    // templates/articles/id.html を <div id="app"></div> 要素内に出力する
-    app.innerHTML = mustache.render(html, {
-        title: 'テストタイトル',
-        createdAt: '2024-12-16T02:59:58.271Z',
-        displayCreatedAt: function () {
-            /* @todo 上の行にある createdAt の値をJSのDateオブジェクトを用いて
-            2025/01/19 のようなフォーマットに変換した文字列をセット */
-            console.log(this);
-            return '2024/12/16';
-        },
-        updatedAt: '2024-12-16T02:59:58.271Z',
-        displayUpdatedAt: function () {
-            /* @todo 上の行にある updatedAt の値をJSのDateオブジェクトを用いて
-            2025/01/19 のようなフォーマットに変換した文字列をセット */
-            console.log(this);
-            return '2024/12/16';
-        },
-        user: {
-            id: '94fbd3f5-e175-4817-8da9-9ccac2a0a956',
-            username: '@example',
-        },
-        body: '<h1>見出し</h1><p>テキストテキストテキスト</p>'
-    });
-    // このページ /articles/:id から遷移する際に実行する処理
-    return () => {
-    };
+
+    // fetchを使って記事詳細を取得
+    fetch(`/api/v1/articles/${id}`)
+        .then((response) => response.json())
+        .then((data) => {
+            if (!data.isSuccess) {
+                throw new Error('記事の取得に失敗しました');
+            }
+
+            const { item } = data;  // itemに記事データが含まれている
+            const { title, createdAt, updatedAt, user, body } = item;
+
+            // 作成日時と更新日時を整形
+            const displayCreatedAt = formatDate(createdAt);
+            const displayUpdatedAt = formatDate(updatedAt);
+
+            // テンプレートにデータを埋め込んでレンダリング
+            app.innerHTML = mustache.render(html, {
+                title,
+                createdAt,
+                displayCreatedAt,
+                updatedAt,
+                displayUpdatedAt,
+                user,
+                body: DOMPurify.sanitize(body)  // HTMLをサニタイズして挿入
+            });
+        })
+        .catch((error) => {
+            console.error('Error fetching article data:', error);
+            app.innerHTML = '<p>記事の取得に失敗しました。</p>';
+        });
+
+    // 日付フォーマット用関数
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}/${month}/${day}`;
+    }
+
+    // この記事ページに遷移した後に実行する処理
+    return () => {};
 };
