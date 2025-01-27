@@ -274,6 +274,82 @@ paths:
                       },
                     }
                   }
+  /api/v1/contact:
+    post:
+      summary: "お問い合わせ作成"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - username
+                - email
+                - body
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: "username"
+                email:
+                  type: string
+                  example: "email"
+                body:
+                  type: string
+                  example: "お問い合わせ"
+      responses:
+        200:
+          description: "コンテンツが正常に新規作成できた際のレスポンス"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isSuccess:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "保存成功"
+                  article:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: "1459b840-f3b7-474b-967a-f526b7e287cb"
+                      userId:
+                        type: string
+                        example: "d990077e-d6ab-4c19-a0b7-0fb76564ede5"
+                      username:
+                        type: string
+                        example: "username"
+                      email: 
+                        type: string
+                        example: "email"
+                      body:
+                        type: string
+                        example: "お問い合わせ"
+                      createdAt:
+                        type: string
+                        example: "2024-12-15T08:18:31.990Z"
+                      updatedAt:
+                        type: string
+                        example: "2024-12-15T08:18:31.990Z"
+                example:
+                  {
+                    "isSuccess": true,
+                    "message": "保存成功",
+                    "article":
+                      {
+                        "id": "1459b840-f3b7-474b-967a-f526b7e287cb",
+                        "userId": "d990077e-d6ab-4c19-a0b7-0fb76564ede5",
+                        "username": "username",
+                        "email" : "email",
+                        "body": "お問い合わせ",
+                        "createdAt": "2024-12-15T08:18:31.990Z",
+                        "updatedAt": "2024-12-15T08:18:31.990Z",
+                      },
+                  }
 
 components:
   securitySchemes:

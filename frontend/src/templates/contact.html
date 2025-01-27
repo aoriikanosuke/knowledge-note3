@@ -1,0 +1,15 @@
+<h1>お問い合わせ</h1>
+<form action="/contact" method="post" id="contact-form">
+  <label for="username">ユーザー名（または氏名）</label>
+  <input type="text" autocomplete="username" name="username" id="username" required placeholder="username" />
+  <label for="email">メールアドレス</label>
+  <input type="email" name="email" id="email" required placeholder="example@example.com" />
+  <div id="content">
+    <div><b>内容</b></div>
+    <textarea name="body" rows="10" id="editor-textarea" placeholder="お問い合わせ"></textarea>
+  </div>
+
+  <div>
+    <button type="submit">送信</button>
+  </div>
+</form>
